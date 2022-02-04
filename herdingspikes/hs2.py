@@ -985,6 +985,40 @@ class HSClustering(object):
                     # seems this is a problem when zooming with x/ylim
         return ax
 
+    def PlotFeatureSpace(
+        self,
+        invert=False,
+        show_labels=False,
+        ax=None,
+        max_show=200000,
+        fontsize=16,
+        **kwargs
+    ):
+
+        n_spikes = self.spikes.shape[0]
+        if ax is None:
+            ax = plt.gca()
+        x, y = self.features[:, 0], self.features[:, 1]
+        if invert:
+            x, y = y, x
+        if self.spikes.shape[0] > max_show:
+            inds = np.random.choice(n_spikes, max_show, replace=False)
+            print("We have", n_spikes, "spikes, only showing ", max_show)
+        else:
+            inds = np.arange(n_spikes)
+
+        c = plt.cm.hsv(self.clusters.Color[self.spikes.cl])
+        ax.scatter(x[inds], y[inds], c=c[inds], **kwargs)
+        if show_labels and self.IsClustered:
+            ctr_x, ctr_y = self.clusters.ctr_x, self.clusters.ctr_y
+            if invert:
+                ctr_x, ctr_y = ctr_y, ctr_x
+            for cl in range(self.NClusters):  # TODO why is this here
+                if ~np.isnan(ctr_y[cl]):  # hack, why NaN positions in DBScan?
+                    ax.annotate(str(cl), [ctr_x[cl], ctr_y[cl]], fontsize=fontsize)
+                    # seems this is a problem when zooming with x/ylim
+        return ax
+
     def PlotNeighbourhood(
         self,
         cl,
