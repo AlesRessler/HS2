@@ -7,7 +7,7 @@ import os
 from .detection_localisation.detect import detectData
 from matplotlib import pyplot as plt
 from .clustering.mean_shift_ import MeanShift
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, FastICA
 from os.path import splitext
 import warnings
 
@@ -562,6 +562,34 @@ class HSClustering(object):
 
         self.pca = _pca
         self.features = _pcs
+        print("...done")
+
+    def ShapeICA(self, ica_ncomponents=2, ica_whiten=True, chunk_size=1000000,):
+        n_spikes = self.spikes.shape[0]
+
+        _ica = FastICA(n_components=ica_ncomponents, whiten=ica_whiten)
+
+        if n_spikes > chunk_size:
+            print("Fitting dimensionality reduction using", chunk_size, "out of",
+                  n_spikes, "spikes...")
+            inds = np.sort(np.random.choice(n_spikes, chunk_size, replace=False))
+            s = self.spikes.Shape.loc[inds].values.tolist()
+        else:
+            print("Fitting dimensionality reduction using all spikes...")
+            s = self.spikes.Shape.values.tolist()
+
+        _ica.fit(np.asarray(s))
+
+        print("...projecting...")
+        _ics = np.empty((n_spikes, ica_ncomponents))
+        for i in range(n_spikes // chunk_size + 1):
+            # is this the best way? Warning: Pandas slicing with .loc is different!
+            s = self.spikes.Shape.loc[
+                i * chunk_size: (i + 1) * chunk_size - 1].values.tolist()
+            _ics[i * chunk_size: (i + 1) * chunk_size, :] = _ica.transform(s)
+
+        self.pca = _ica
+        self.features = _ics
         print("...done")
 
     def _savesinglehdf5(self, filename, limits, compression, sampling, transpose=False):
