@@ -617,6 +617,8 @@ class HSClustering(object):
             sorted_array = fft_shape[sorted_index_array]
             rslt = sorted_array[-ncomponents:]
 
+            print(sorted_array)
+
             features = np.append(features, np.array([rslt]), axis=0)
 
         self.features = features
