@@ -617,10 +617,7 @@ class HSClustering(object):
             sorted_array = fft_shape[sorted_index_array]
             rslt = sorted_array[-ncomponents:]
 
-            if(len(rslt) != ncomponents):
-                raise Exception(rslt)
-
-            features = np.append(features, rslt, axis=0)
+            features = np.append(features, np.array([rslt]), axis=0)
 
         self.features = features
 
