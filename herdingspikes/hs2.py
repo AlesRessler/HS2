@@ -594,7 +594,7 @@ class HSClustering(object):
         self.features = _ics
         print("...done")
 
-    def ShapeFourier(self, ncomponents=2, whiten=True, chunk_size=1000000,):
+    def ShapeFourier(self, ncomponents=2, whiten_data=True, chunk_size=1000000,):
         n_spikes = self.spikes.shape[0]
 
         if n_spikes > chunk_size:
@@ -611,7 +611,13 @@ class HSClustering(object):
         features = np.empty((0, ncomponents))
 
         for shape in s:
-            whitened_shape = whiten(shape)
+            whitened_shape = None
+
+            if(whiten_data):
+                whitened_shape = whiten(shape)
+            else:
+                whitened_shape = shape
+
             fft_shape = fft(whitened_shape)
             fft_shape = (2 / len(whitened_shape)) * np.abs(fft_shape)
 
