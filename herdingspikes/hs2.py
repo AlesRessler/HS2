@@ -618,6 +618,7 @@ class HSClustering(object):
             rslt = sorted_array[-ncomponents:]
 
             print(sorted_array)
+            break
 
             features = np.append(features, np.array([rslt]), axis=0)
 
