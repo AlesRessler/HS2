@@ -10,6 +10,7 @@ from .clustering.mean_shift_ import MeanShift
 from sklearn.decomposition import PCA, FastICA
 from os.path import splitext
 import warnings
+from scipy.fftpack import fft
 
 
 def min_func(x):
@@ -590,6 +591,36 @@ class HSClustering(object):
 
         self.pca = _ica
         self.features = _ics
+        print("...done")
+
+    def ShapeFourier(self, ncomponents=2, whiten=True, chunk_size=1000000,):
+        n_spikes = self.spikes.shape[0]
+
+        if n_spikes > chunk_size:
+            print("Fitting dimensionality reduction using", chunk_size, "out of",
+                  n_spikes, "spikes...")
+            inds = np.sort(np.random.choice(n_spikes, chunk_size, replace=False))
+            s = self.spikes.Shape.loc[inds].values.tolist()
+        else:
+            print("Fitting dimensionality reduction using all spikes...")
+            s = self.spikes.Shape.values.tolist()
+
+        print("...projecting...")
+
+        features = np.empty((0, ncomponents))
+
+        for shape in s:
+            fft_shape = fft(shape)
+            fft_shape = (2 / len(shape)) * np.abs(fft_shape)
+
+            sorted_index_array = np.argsort(fft_shape)
+            sorted_array = fft_shape[sorted_index_array]
+            rslt = sorted_array[-ncomponents:]
+
+            features = np.append(features, rslt, axis=0)
+
+        self.features = features
+
         print("...done")
 
     def _savesinglehdf5(self, filename, limits, compression, sampling, transpose=False):
