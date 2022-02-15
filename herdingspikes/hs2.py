@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA, FastICA
 from os.path import splitext
 import warnings
 from scipy.fftpack import fft
+from scipy.cluster.vq import whiten
 
 
 def min_func(x):
@@ -610,8 +611,9 @@ class HSClustering(object):
         features = np.empty((0, ncomponents))
 
         for shape in s:
-            fft_shape = fft(shape)
-            fft_shape = (2 / len(shape)) * np.abs(fft_shape)
+            whitened_shape = whiten(shape)
+            fft_shape = fft(whitened_shape)
+            fft_shape = (2 / len(whitened_shape)) * np.abs(fft_shape)
 
             sorted_index_array = np.argsort(fft_shape)
             #sorted_array = fft_shape[sorted_index_array]
