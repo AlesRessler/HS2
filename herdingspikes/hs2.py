@@ -614,13 +614,17 @@ class HSClustering(object):
             fft_shape = (2 / len(shape)) * np.abs(fft_shape)
 
             sorted_index_array = np.argsort(fft_shape)
-            sorted_array = fft_shape[sorted_index_array]
-            rslt = sorted_array[-ncomponents:]
+            #sorted_array = fft_shape[sorted_index_array]
+            #rslt = sorted_array[-ncomponents:]
+            #print(sorted_array)
+            #break
 
-            print(sorted_array)
+            components = sorted_index_array[-ncomponents:]
+
+            print(components)
             break
 
-            features = np.append(features, np.array([rslt]), axis=0)
+            features = np.append(features, np.array([components]), axis=0)
 
         self.features = features
 
