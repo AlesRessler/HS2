@@ -621,9 +621,6 @@ class HSClustering(object):
 
             components = sorted_index_array[-ncomponents:]
 
-            print(components)
-            break
-
             features = np.append(features, np.array([components]), axis=0)
 
         self.features = features
