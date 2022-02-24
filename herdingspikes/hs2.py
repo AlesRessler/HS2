@@ -661,8 +661,8 @@ class HSClustering(object):
             elif(wavelet_name == 'morlet'):
                 transformed_shape = cwt(shape, scipy.signal.morlet2, widths)
 
-            if(i % 100 == 0):
-                print(100)
+            if(i % 10000 == 0):
+                print(10000)
 
             flattened_transformed_shape = np.array(transformed_shape).flatten()
             features = np.append(features, np.array([flattened_transformed_shape]), axis=0)
