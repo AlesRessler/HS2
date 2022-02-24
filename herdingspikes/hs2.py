@@ -661,6 +661,7 @@ class HSClustering(object):
                 transformed_shape = cwt(shape, scipy.signal.morlet2, widths)
 
             flattened_transformed_shape = np.array(transformed_shape).flatten()
+            print(flattened_transformed_shape)
             print(flattened_transformed_shape.shape)
             print(features.shape)
             features = np.append(features, flattened_transformed_shape, axis=0)
