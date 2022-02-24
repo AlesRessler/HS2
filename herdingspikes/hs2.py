@@ -653,6 +653,7 @@ class HSClustering(object):
         transformed_shape = None
         flattened_transformed_shape = None
 
+        i = 0
         print('computing wavelet transform')
         for shape in s:
             if(wavelet_name == 'ricker'):
@@ -660,8 +661,12 @@ class HSClustering(object):
             elif(wavelet_name == 'morlet'):
                 transformed_shape = cwt(shape, scipy.signal.morlet2, widths)
 
+            if(i % 100 == 0):
+                print(100)
+
             flattened_transformed_shape = np.array(transformed_shape).flatten()
             features = np.append(features, np.array([flattened_transformed_shape]), axis=0)
+            i += 1
 
         if(dimensionality_reduction == 'pca'):
             _pca = PCA(n_components=ncomponents, whiten=whiten_data)
