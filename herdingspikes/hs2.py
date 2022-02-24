@@ -664,7 +664,7 @@ class HSClustering(object):
             print(flattened_transformed_shape)
             print(flattened_transformed_shape.shape)
             print(features.shape)
-            features = np.append(features, flattened_transformed_shape, axis=0)
+            features = np.append(features, np.array([flattened_transformed_shape]), axis=0)
             break
 
         if(dimensionality_reduction == 'pca'):
