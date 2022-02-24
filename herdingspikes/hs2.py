@@ -647,7 +647,7 @@ class HSClustering(object):
         print("...projecting...")
 
         widths_lower = 1
-        widths_upper = 31
+        widths_upper = 6
         features = np.empty((0, len(s[0])*(widths_upper-1)))
         widths = np.arange(widths_lower, widths_upper)
         transformed_shape = None
