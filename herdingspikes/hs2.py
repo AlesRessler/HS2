@@ -677,7 +677,7 @@ class HSClustering(object):
             _pcs = np.empty((n_spikes, ncomponents))
             for i in range(n_spikes // chunk_size + 1):
                 # is this the best way? Warning: Pandas slicing with .loc is different!
-                s = self.spikes.Shape.loc[
+                s = features[
                     i * chunk_size: (i + 1) * chunk_size - 1].values.tolist()
                 _pcs[i * chunk_size: (i + 1) * chunk_size, :] = _pca.transform(s)
 
