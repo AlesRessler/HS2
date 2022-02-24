@@ -661,7 +661,10 @@ class HSClustering(object):
                 transformed_shape = cwt(shape, scipy.signal.morlet2, widths)
 
             flattened_transformed_shape = np.array(transformed_shape).flatten()
+            print(flattened_transformed_shape.shape)
+            print(features.shape)
             features = np.append(features, flattened_transformed_shape, axis=0)
+            break
 
         if(dimensionality_reduction == 'pca'):
             _pca = PCA(n_components=ncomponents, whiten=whiten_data)
