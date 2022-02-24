@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import h5py
 import os
+
+import scipy.signal
+
 from .detection_localisation.detect import detectData
 from matplotlib import pyplot as plt
 from .clustering.mean_shift_ import MeanShift
@@ -11,6 +14,7 @@ from sklearn.decomposition import PCA, FastICA
 from os.path import splitext
 import warnings
 from scipy.fftpack import fft
+from scipy.signal import cwt
 from scipy.cluster.vq import whiten
 
 
@@ -611,15 +615,8 @@ class HSClustering(object):
         features = np.empty((0, ncomponents))
 
         for shape in s:
-            whitened_shape = None
-
-            if(whiten_data):
-                whitened_shape = whiten(shape)
-            else:
-                whitened_shape = shape
-
-            fft_shape = fft(whitened_shape)
-            fft_shape = (2 / len(whitened_shape)) * np.abs(fft_shape)
+            fft_shape = fft(shape)
+            fft_shape = (2 / len(shape)) * np.abs(fft_shape)
 
             sorted_index_array = np.argsort(fft_shape)
             #sorted_array = fft_shape[sorted_index_array]
@@ -634,6 +631,54 @@ class HSClustering(object):
         self.features = features
 
         print("...done")
+
+    def ShapeWavelet(self, ncomponents=2, whiten_data=True, chunk_size=1000000, wavelet_name='ricker', dimensionality_reduction='pca'):
+        n_spikes = self.spikes.shape[0]
+
+        if n_spikes > chunk_size:
+            print("Fitting dimensionality reduction using", chunk_size, "out of",
+                  n_spikes, "spikes...")
+            inds = np.sort(np.random.choice(n_spikes, chunk_size, replace=False))
+            s = self.spikes.Shape.loc[inds].values.tolist()
+        else:
+            print("Fitting dimensionality reduction using all spikes...")
+            s = self.spikes.Shape.values.tolist()
+
+        print("...projecting...")
+
+        features = np.empty((0, ncomponents))
+        widths = np.arange(1, 31)
+        transformed_shape = None
+        flattened_transformed_shape = None
+
+        print('computing wavelet transform')
+        for shape in s:
+            if(wavelet_name == 'ricker'):
+                transformed_shape = cwt(shape, scipy.signal.ricker, widths)
+            elif(wavelet_name == 'morlet'):
+                transformed_shape = cwt(shape, scipy.signal.morlet2, widths)
+
+            flattened_transformed_shape = np.array(transformed_shape).flatten()
+            features = np.append(features, flattened_transformed_shape, axis=0)
+
+        if(dimensionality_reduction == 'pca'):
+            _pca = PCA(n_components=ncomponents, whiten=whiten_data)
+
+            _pca.fit(features)
+
+            print("...projecting...")
+            _pcs = np.empty((n_spikes, ncomponents))
+            for i in range(n_spikes // chunk_size + 1):
+                # is this the best way? Warning: Pandas slicing with .loc is different!
+                s = self.spikes.Shape.loc[
+                    i * chunk_size: (i + 1) * chunk_size - 1].values.tolist()
+                _pcs[i * chunk_size: (i + 1) * chunk_size, :] = _pca.transform(s)
+
+            self.pca = _pca
+            self.features = _pcs
+            print("...done")
+        else:
+            raise Exception("Invalid dimensionality reduction")
 
     def _savesinglehdf5(self, filename, limits, compression, sampling, transpose=False):
         if limits is not None:
